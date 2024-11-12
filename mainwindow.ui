@@ -67,6 +67,9 @@
       <property name="autoScroll">
        <bool>true</bool>
       </property>
+      <property name="movement">
+       <enum>QListView::Movement::Static</enum>
+      </property>
       <property name="flow">
        <enum>QListView::Flow::LeftToRight</enum>
       </property>
@@ -79,8 +82,20 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
+   <property name="font">
+    <font>
+     <family>宋体</family>
+     <pointsize>8</pointsize>
+    </font>
+   </property>
    <property name="windowTitle">
     <string>toolBar</string>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>18</width>
+     <height>18</height>
+    </size>
    </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
@@ -100,6 +115,8 @@
    <addaction name="actionCut"/>
    <addaction name="actionCopy"/>
    <addaction name="actionPaste"/>
+   <addaction name="actionSelectAll"/>
+   <addaction name="actionLineWrap"/>
    <addaction name="actionShowToolBar"/>
    <addaction name="actionShowStatusBar"/>
   </widget>
@@ -130,7 +147,7 @@
     </property>
     <addaction name="actionFontColor"/>
     <addaction name="actionBackgroundColor"/>
-    <addaction name="actionFontSize"/>
+    <addaction name="actionFont"/>
    </widget>
    <widget class="QMenu" name="menu_V">
     <property name="title">
@@ -341,9 +358,12 @@
     <enum>QAction::MenuRole::NoRole</enum>
    </property>
   </action>
-  <action name="actionFontSize">
+  <action name="actionFont">
    <property name="text">
-    <string>字体大小</string>
+    <string>字体</string>
+   </property>
+   <property name="toolTip">
+    <string>字体</string>
    </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::NoRole</enum>
@@ -385,6 +405,36 @@
    </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionSelectAll">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/img/selectAll.png</normaloff>:/img/selectAll.png</iconset>
+   </property>
+   <property name="text">
+    <string>全选</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+A</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionLineWrap">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/img/multi-line-text.png</normaloff>:/img/multi-line-text.png</iconset>
+   </property>
+   <property name="text">
+    <string>自动换行</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::AboutQtRole</enum>
    </property>
   </action>
  </widget>

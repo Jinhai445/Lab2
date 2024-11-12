@@ -15,5 +15,8 @@
         <file>img/redo.png</file>
         <file>img/statusBar.png</file>
         <file>img/toolBar.png</file>
+        <file>img/selectAll.png</file>
+        <file>img/multi-line-text.png</file>
+        <file>img/linewrap.png</file>
     </qresource>
 </RCC>

@@ -25,13 +25,7 @@ MainWindow::MainWindow(QWidget *parent)
     QScrollBar *ScrollBar = ui->listWidget->horizontalScrollBar();
     ScrollBar->setStyleSheet("QScrollBar:horizontal { height: 10px; }");
 
-    //     ui->stackedWidget->clearMask();
-    // while (ui->stackedWidget->count() > 0) {
-    //     QWidget *widget = ui->stackedWidget->widget(0); // 获取第一个页面
-    //     ui->stackedWidget->removeWidget(widget); // 移除页面
-    //     delete widget; // 释放内存
-    // }
-   // ui->centralwidget->layout()->removeWidget(ui->textEdit);
+
     untitledCount = 0;
     statusLabel.setMaximumWidth(150);
     statusLabel.setText("length: "+QString::number(0)+"  Line:  "+QString::number(1));
@@ -43,6 +37,12 @@ MainWindow::MainWindow(QWidget *parent)
     ui->statusbar->addPermanentWidget(author);
     ui->actionShowToolBar->setChecked(true);
     ui->actionShowStatusBar->setChecked(true);
+
+    ui->actionCopy->setEnabled(false);
+    ui->actionCut->setEnabled(false);
+    ui->actionPaste->setEnabled(false);
+    ui->actionUndo->setEnabled(false);
+    ui->actionRedo->setEnabled(false);
 }
 
 MainWindow::~MainWindow()
@@ -53,6 +53,7 @@ MainWindow::~MainWindow()
 void MainWindow::on_actionAbout_triggered()
 {
     AboutDialog aboutDialog;
+    aboutDialog.setWindowTitle("关于");
     aboutDialog.exec();
 }
 
@@ -60,6 +61,7 @@ void MainWindow::on_actionAbout_triggered()
 void MainWindow::on_actionFind_triggered()
 {
     SearchDialog searchDialog;
+    searchDialog.setWindowTitle("查找");
     searchDialog.exec();
 }
 
@@ -67,6 +69,7 @@ void MainWindow::on_actionFind_triggered()
 void MainWindow::on_actionReplace_triggered()
 {
     ReplaceDialog replaceDialog;
+    replaceDialog.setWindowTitle("替换");
     replaceDialog.exec();
 }
 
@@ -108,12 +111,14 @@ void MainWindow::on_actionNew_triggered()
     ui->listWidget->setItemWidget(item, widget);
 
     ui->listWidget->setCurrentItem(item);
+
     connect(deleteButton, &QPushButton::clicked, [this, item]() {
         qDebug()<<item;
         qDebug()<<"del"<<static_cast<QPlainTextEdit*>(item->data(Qt::UserRole).value<void*>());
         stackedWidget->removeWidget(static_cast<QPlainTextEdit*>(item->data(Qt::UserRole).value<void*>()));
         delete item;
     });
+    //文件修改，对应文件状态修改
     connect(Edit, &QPlainTextEdit::textChanged, [this, item]() {
         int isChanged = item->data(Qt::UserRole+2).toInt();
         if(isChanged == 1){
@@ -130,30 +135,26 @@ void MainWindow::on_actionNew_triggered()
         QTimer::singleShot(10000, []() {
             QToolTip::hideText();  // 隐藏工具提示
         });
-        // QMessageBox *msgBox = new QMessageBox();
-        // msgBox->setIcon(QMessageBox::Information);  // 设置消息框图标
-        // msgBox->setText("TEXT CHANGED");  // 设置消息文本
-        // msgBox->setWindowTitle("INFO");  // 设置窗口标题
-        // // 使用定时器，自动关闭消息框
-        // QTimer::singleShot(900, msgBox, &QMessageBox::close);
+
         item->setData(Qt::UserRole+2,1);
-        // msgBox->show();
+
 
     });
+    //关联复制粘贴等操作的槽函数
+    connect(Edit, &QPlainTextEdit::copyAvailable, this, &MainWindow::onCopyAvailable);
+    connect(Edit, &QPlainTextEdit::redoAvailable, this, &MainWindow::onRedoAvailable);
+    connect(Edit, &QPlainTextEdit::undoAvailable, this, &MainWindow::onUndoAvailable);
     curWidgetItem = item;
     curEdit = Edit;
-
-
-
-
-
-
-
-
 }
 
 
-
+// QMessageBox *msgBox = new QMessageBox();
+// msgBox->setIcon(QMessageBox::Information);  // 设置消息框图标
+// msgBox->setText("TEXT CHANGED");  // 设置消息文本
+// msgBox->setWindowTitle("INFO");  // 设置窗口标题
+// // 使用定时器，自动关闭消息框
+// QTimer::singleShot(900, msgBox, &QMessageBox::close);
 // ui->listWidget->addItem(item);
 // ui->listWidget->setItemWidget(item, widget);
 // ui->listWidget->setCurrentItem(item);
@@ -199,6 +200,7 @@ void MainWindow::on_actionOpenFile_triggered()
     QTextStream in(&file);
     QString text = in.readAll();
 
+    //创建对应文件的QListWidgetItem，Widget 和 QPlainTextEdit
     QListWidgetItem *item = new QListWidgetItem();
     QPushButton *deleteButton = new QPushButton("×");
     QFont font = deleteButton->font();
@@ -214,7 +216,7 @@ void MainWindow::on_actionOpenFile_triggered()
     hLayout->addWidget(label);
     hLayout->addWidget(deleteButton);
     widget->setLayout(hLayout);
-
+    Edit->setPlainText(text);
 
 
     Edit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -260,6 +262,11 @@ void MainWindow::on_actionOpenFile_triggered()
         item->setData(Qt::UserRole+2,1);
 
     });
+    //关联复制粘贴等操作的槽函数
+    connect(Edit, &QPlainTextEdit::copyAvailable, this, &MainWindow::onCopyAvailable);
+    connect(Edit, &QPlainTextEdit::redoAvailable, this, &MainWindow::onRedoAvailable);
+    connect(Edit, &QPlainTextEdit::undoAvailable, this, &MainWindow::onUndoAvailable);
+    //将当前操作的文件替换
     curWidgetItem = item;
     curEdit = Edit;
 
@@ -345,7 +352,7 @@ void MainWindow::on_actionSaveAs_triggered()
     curWidgetItem->setData(Qt::UserRole+2,0);
 
 
-    //文件如果已保存，修改窗口文件名
+    //文件如果已保存，修改窗口文件名，去除前缀*
     if(curWidgetItem->data(Qt::UserRole+1).toInt()==0){
         //获取Label对象并修改文字
         QWidget *associatedWidget = ui->listWidget->itemWidget(curWidgetItem);
@@ -373,31 +380,38 @@ void MainWindow::on_listWidget_itemClicked(QListWidgetItem *item)
 
 void MainWindow::on_actionUndo_triggered()
 {
-    qobject_cast<QPlainTextEdit*>(stackedWidget->currentWidget())->undo();
+   curEdit->undo();
+
 }
 
 
 void MainWindow::on_actionCut_triggered()
 {
-    qobject_cast<QPlainTextEdit*>(stackedWidget->currentWidget())->cut();
+    curEdit->cut();
+    ui->actionPaste->setEnabled(true);
 }
 
 
 void MainWindow::on_actionCopy_triggered()
 {
-    qobject_cast<QPlainTextEdit*>(stackedWidget->currentWidget())->copy();
+    curEdit->copy();
+    ui->actionPaste->setEnabled(true);
 }
 
 
 void MainWindow::on_actionPaste_triggered()
 {
-    qobject_cast<QPlainTextEdit*>(stackedWidget->currentWidget())->paste();
+   curEdit->paste();
 }
 
 
 void MainWindow::on_actionRedo_triggered()
 {
-    qobject_cast<QPlainTextEdit*>(stackedWidget->currentWidget())->redo();
+    curEdit->redo();
+}
+void MainWindow::on_actionSelectAll_triggered()
+{
+    curEdit->selectAll();
 }
 
 
@@ -405,7 +419,7 @@ void MainWindow::on_actionFontColor_triggered()
 {
     QColor color = QColorDialog::getColor(Qt::black,this,"选择颜色");
     if(color.isValid()){
-        qobject_cast<QPlainTextEdit*>(stackedWidget->currentWidget())->setStyleSheet(QString("QPlainTextEdit {color:%1}").arg(color.name()));
+        curEdit->setStyleSheet(QString("QPlainTextEdit {color:%1}").arg(color.name()));
     }
 }
 
@@ -416,20 +430,11 @@ void MainWindow::on_actionBackgroundColor_triggered()
 {
     QColor color = QColorDialog::getColor(Qt::black,this,"选择颜色");
     if(color.isValid()){
-        qobject_cast<QPlainTextEdit*>(stackedWidget->currentWidget())->setStyleSheet(QString("QPlainTextEdit {background-color:%1}").arg(color.name()));
+        curEdit->setStyleSheet(QString("QPlainTextEdit {background-color:%1}").arg(color.name()));
     }
 }
 
 
-void MainWindow::on_actionFontSize_triggered()
-{
-    bool ok = false;
-    QFont font = QFontDialog::getFont(&ok,this);
-    if(ok){
-          qobject_cast<QPlainTextEdit*>(stackedWidget->currentWidget())->setFont(font);
-    }
-
-}
 
 
 void MainWindow::on_actionShowToolBar_triggered()
@@ -453,3 +458,39 @@ void MainWindow::on_actionExit_triggered()
     exit(0);
 }
 
+
+
+
+void MainWindow::on_actionLineWrap_triggered()
+{
+    QPlainTextEdit::LineWrapMode mode = curEdit->lineWrapMode();
+    if(mode == QTextEdit::NoWrap){
+        curEdit->setLineWrapMode(QPlainTextEdit::WidgetWidth);
+        ui->actionLineWrap->setChecked(true);
+    }else{
+        curEdit->setLineWrapMode(QPlainTextEdit::NoWrap);
+        ui->actionLineWrap->setChecked(false);
+    }
+}
+
+
+void MainWindow::on_actionFont_triggered()
+{
+    bool ok = false;
+    QFont font = QFontDialog::getFont(&ok,this);
+    if(ok){
+        curEdit->setFont(font);
+    }
+}
+
+void MainWindow::onCopyAvailable(bool b){
+    ui->actionCopy->setEnabled(b);
+    ui->actionCut->setEnabled(b);
+}
+
+void MainWindow:: onRedoAvailable(bool b){
+    ui->actionRedo->setEnabled(b);
+}
+void MainWindow:: onUndoAvailable(bool b){
+    ui->actionUndo->setEnabled(b);
+}
