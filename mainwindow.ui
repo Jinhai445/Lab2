@@ -117,6 +117,7 @@
    <addaction name="actionPaste"/>
    <addaction name="actionSelectAll"/>
    <addaction name="actionLineWrap"/>
+   <addaction name="actionLineNumber"/>
    <addaction name="actionShowToolBar"/>
    <addaction name="actionShowStatusBar"/>
   </widget>
@@ -134,12 +135,21 @@
      <string>文件(&amp;F)</string>
     </property>
     <addaction name="actionNew"/>
+    <addaction name="actionOpenFile"/>
+    <addaction name="actionSave"/>
+    <addaction name="actionSaveAs"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menu_E">
     <property name="title">
      <string>编辑(&amp;E)</string>
     </property>
+    <addaction name="actionUndo"/>
+    <addaction name="actionCut"/>
+    <addaction name="actionCopy"/>
+    <addaction name="actionPaste"/>
+    <addaction name="actionRedo"/>
+    <addaction name="actionSelectAll"/>
    </widget>
    <widget class="QMenu" name="menu_Q">
     <property name="title">
@@ -155,6 +165,7 @@
     </property>
     <addaction name="actionShowToolBar"/>
     <addaction name="actionShowStatusBar"/>
+    <addaction name="actionLineWrap"/>
    </widget>
    <widget class="QMenu" name="menu_H">
     <property name="title">
@@ -435,6 +446,24 @@
    </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::AboutQtRole</enum>
+   </property>
+  </action>
+  <action name="actionLineNumber">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/img/lineNumber.png</normaloff>:/img/lineNumber.png</iconset>
+   </property>
+   <property name="text">
+    <string>显示行号</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
    </property>
   </action>
  </widget>

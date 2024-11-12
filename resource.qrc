@@ -18,5 +18,6 @@
         <file>img/selectAll.png</file>
         <file>img/multi-line-text.png</file>
         <file>img/linewrap.png</file>
+        <file>img/lineNumber.png</file>
     </qresource>
 </RCC>

@@ -68,11 +68,15 @@ private slots:
 
     void on_actionFont_triggered();
 
-
+    void oncursorPositionChanged();
     void onCopyAvailable(bool b);
     void onRedoAvailable(bool b);
     void onUndoAvailable(bool b);
 
+
+
+
+    void on_actionLineNumber_triggered(bool checked);
 
 private:
     Ui::MainWindow *ui;

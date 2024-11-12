@@ -66,7 +66,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="lineEdit"/>
+        <widget class="QLineEdit" name="searchText"/>
        </item>
       </layout>
      </item>
@@ -98,14 +98,14 @@
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="lineEdit_2"/>
+        <widget class="QLineEdit" name="toReplace"/>
        </item>
       </layout>
      </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_4">
        <item>
-        <widget class="QCheckBox" name="checkBox">
+        <widget class="QCheckBox" name="CaseSensitive">
          <property name="font">
           <font>
            <family>宋体</family>
@@ -133,7 +133,7 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_3">
            <item>
-            <widget class="QRadioButton" name="radioButton">
+            <widget class="QRadioButton" name="rbUp">
              <property name="font">
               <font>
                <family>宋体</family>
@@ -145,7 +145,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QRadioButton" name="radioButton_2">
+            <widget class="QRadioButton" name="rbDown">
              <property name="font">
               <font>
                <family>宋体</family>
@@ -167,28 +167,28 @@
    <item row="0" column="1">
     <layout class="QVBoxLayout" name="verticalLayout_3">
      <item>
-      <widget class="QPushButton" name="pushButton_3">
+      <widget class="QPushButton" name="FindNext">
        <property name="text">
         <string>查找下一个(&amp;F)</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_4">
+      <widget class="QPushButton" name="replaceButton">
        <property name="text">
         <string>替换(&amp;R)</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_5">
+      <widget class="QPushButton" name="ReplaceAllButton">
        <property name="text">
         <string>全部替换(&amp;A)</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_6">
+      <widget class="QPushButton" name="cancelButton">
        <property name="text">
         <string>取消</string>
        </property>

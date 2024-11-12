@@ -29,12 +29,12 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="lineEdit"/>
+      <widget class="QLineEdit" name="searchText"/>
      </item>
     </layout>
    </item>
    <item row="0" column="1">
-    <widget class="QPushButton" name="pushButton">
+    <widget class="QPushButton" name="findNext">
      <property name="font">
       <font>
        <family>宋体</family>
@@ -48,7 +48,7 @@
    <item row="1" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout_4">
      <item>
-      <widget class="QCheckBox" name="checkBox">
+      <widget class="QCheckBox" name="CaseSensitive">
        <property name="font">
         <font>
          <family>宋体</family>
@@ -76,7 +76,7 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item>
-          <widget class="QRadioButton" name="radioButton">
+          <widget class="QRadioButton" name="rbUp">
            <property name="font">
             <font>
              <family>宋体</family>
@@ -88,7 +88,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QRadioButton" name="radioButton_2">
+          <widget class="QRadioButton" name="rbDown">
            <property name="font">
             <font>
              <family>宋体</family>
@@ -106,7 +106,7 @@
     </layout>
    </item>
    <item row="1" column="1">
-    <widget class="QPushButton" name="pushButton_2">
+    <widget class="QPushButton" name="cancel">
      <property name="font">
       <font>
        <family>宋体</family>

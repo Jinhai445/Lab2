@@ -15,6 +15,7 @@
 #include <QFontDialog>
 #include <QTimer>
 #include <QToolTip>
+#include "CodeEditor.h"
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -27,10 +28,10 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     untitledCount = 0;
-    statusLabel.setMaximumWidth(150);
+    statusLabel.setMaximumWidth(200);
     statusLabel.setText("length: "+QString::number(0)+"  Line:  "+QString::number(1));
     ui->statusbar->addPermanentWidget(&statusLabel);
-    statusCursorLabel.setMaximumWidth(150);
+    statusCursorLabel.setMaximumWidth(200);
     statusCursorLabel.setText("Ln: "+QString::number(0)+"  col:  "+QString::number(1));
     ui->statusbar->addPermanentWidget(&statusCursorLabel);
     QLabel* author = new QLabel("黄金海");
@@ -60,7 +61,7 @@ void MainWindow::on_actionAbout_triggered()
 
 void MainWindow::on_actionFind_triggered()
 {
-    SearchDialog searchDialog;
+    SearchDialog searchDialog(this,curEdit);
     searchDialog.setWindowTitle("查找");
     searchDialog.exec();
 }
@@ -68,7 +69,7 @@ void MainWindow::on_actionFind_triggered()
 
 void MainWindow::on_actionReplace_triggered()
 {
-    ReplaceDialog replaceDialog;
+    ReplaceDialog replaceDialog(this,curEdit);
     replaceDialog.setWindowTitle("替换");
     replaceDialog.exec();
 }
@@ -81,7 +82,7 @@ void MainWindow::on_actionNew_triggered()
     QFont font = deleteButton->font();
     QWidget *widget = new QWidget();
     QHBoxLayout *hLayout = new QHBoxLayout(widget);
-    QPlainTextEdit* Edit = new QPlainTextEdit();
+    QPlainTextEdit* Edit = new CodeEditor();
     QLabel* label = new QLabel("Untitled-"+QString::number(++untitledCount));
 
     item->setSizeHint(QSize(100, 50));
@@ -120,6 +121,8 @@ void MainWindow::on_actionNew_triggered()
     });
     //文件修改，对应文件状态修改
     connect(Edit, &QPlainTextEdit::textChanged, [this, item]() {
+        //状态栏更改
+        statusLabel.setText("length: "+QString::number(curEdit->toPlainText().length())+"  Line:  "+QString::number(curEdit->document()->lineCount()));
         int isChanged = item->data(Qt::UserRole+2).toInt();
         if(isChanged == 1){
             return;
@@ -144,6 +147,9 @@ void MainWindow::on_actionNew_triggered()
     connect(Edit, &QPlainTextEdit::copyAvailable, this, &MainWindow::onCopyAvailable);
     connect(Edit, &QPlainTextEdit::redoAvailable, this, &MainWindow::onRedoAvailable);
     connect(Edit, &QPlainTextEdit::undoAvailable, this, &MainWindow::onUndoAvailable);
+    //光标移动槽函数
+    connect(Edit, &QPlainTextEdit::cursorPositionChanged, this,&MainWindow::oncursorPositionChanged);
+
     curWidgetItem = item;
     curEdit = Edit;
 }
@@ -206,7 +212,7 @@ void MainWindow::on_actionOpenFile_triggered()
     QFont font = deleteButton->font();
     QWidget *widget = new QWidget();
     QHBoxLayout *hLayout = new QHBoxLayout(widget);
-    QPlainTextEdit* Edit = new QPlainTextEdit();
+    QPlainTextEdit* Edit = new CodeEditor();
     QLabel* label = new QLabel(QFileInfo(filePath).fileName());
 
     item->setSizeHint(QSize(100, 50));
@@ -244,6 +250,8 @@ void MainWindow::on_actionOpenFile_triggered()
         delete item;
     });
     connect(Edit, &QPlainTextEdit::textChanged, [this, item]() {
+        //状态栏更改
+        statusLabel.setText("length: "+QString::number(curEdit->toPlainText().length())+"  Line:  "+QString::number(curEdit->document()->lineCount()));
         int isChanged = item->data(Qt::UserRole+2).toInt();
         if(isChanged == 1){
             return;
@@ -266,6 +274,8 @@ void MainWindow::on_actionOpenFile_triggered()
     connect(Edit, &QPlainTextEdit::copyAvailable, this, &MainWindow::onCopyAvailable);
     connect(Edit, &QPlainTextEdit::redoAvailable, this, &MainWindow::onRedoAvailable);
     connect(Edit, &QPlainTextEdit::undoAvailable, this, &MainWindow::onUndoAvailable);
+    //光标移动槽函数
+    connect(Edit, &QPlainTextEdit::cursorPositionChanged, this,&MainWindow::oncursorPositionChanged);
     //将当前操作的文件替换
     curWidgetItem = item;
     curEdit = Edit;
@@ -494,3 +504,27 @@ void MainWindow:: onRedoAvailable(bool b){
 void MainWindow:: onUndoAvailable(bool b){
     ui->actionUndo->setEnabled(b);
 }
+void MainWindow::oncursorPositionChanged(){
+    int col = 0;
+    int ln = 0;
+    int flg = -1;
+    int pos = curEdit->textCursor().position();
+    QString text = curEdit->toPlainText();
+    for(int i=0;i<pos;i++){
+        if(text[i]=='\n'){
+            ln++;
+            flg=i;
+        }
+    }
+    flg++;
+    col = pos-flg;
+    statusCursorLabel.setText("Ln: "+QString::number(ln+1)+"  col:  "+QString::number(col+1));
+
+}
+
+
+void MainWindow::on_actionLineNumber_triggered(bool checked)
+{
+    dynamic_cast<CodeEditor*>(curEdit)->hideLineNumberArea(checked);
+}
+
